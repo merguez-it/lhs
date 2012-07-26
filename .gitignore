@@ -1,0 +1,17 @@
+# mac
+.DS_Store
+
+# vim swap files
+*.swp
+
+# project generated folders
+build
+.build
+doc
+
+# cmake
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
