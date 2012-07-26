@@ -112,7 +112,6 @@ class Exception : public RuntimeException {
  */
 #define THROW(type, message, args...) \
   std::string _msg_=lhs::util::format(message,## args); \
-  std::cerr << _msg_ << std::endl; \
   throw Exception<type>((_msg_), __FILE__, __LINE__);
 
 #define TRY try

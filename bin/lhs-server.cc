@@ -2,6 +2,7 @@
 #include "http/handler.h"
 #include "handler/static_file.h"
 #include "handler/error_404.h"
+#include "util/exception.h"
 
 #include <iostream>
 
@@ -31,7 +32,11 @@ int main() {
   app = new lhs::handler::error_404();
   app = new lhs::handler::static_file(true, app);
 
-  server.run(app);
+  try {
+    server.run(app);
+  } catch(RuntimeException & e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
 
   server.quit();
   delete app;
