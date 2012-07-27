@@ -75,7 +75,7 @@ namespace lhs {
       public:
         header() {};
         lhs::util::any & operator[](const std::string & key);
-        std::string to_string();
+        std::string to_string() const;
 
       private:
         std::map<std::string, lhs::util::any> datas_;

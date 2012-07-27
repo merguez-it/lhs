@@ -20,3 +20,7 @@ add_test(REQUEST_UNITTEST request_unittest)
 add_executable(uri_unittest "uri_unittest.cc")
 target_link_libraries(uri_unittest lhs-static ${GTEST_BOTH_LIBRARIES})
 add_test(URI_UNITTEST uri_unittest)
+
+add_executable(re_unittest "re_unittest.cc")
+target_link_libraries(re_unittest lhs-static ${GTEST_BOTH_LIBRARIES})
+add_test(RE_UNITTEST re_unittest)

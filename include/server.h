@@ -1,7 +1,7 @@
 #include <string>
 #include <netinet/in.h>
 
-#include "http/handler.h"
+#include "http/middleware.h"
 #include "util/exception.h"
 
 namespace lhs {
@@ -22,7 +22,7 @@ namespace lhs {
       void init(int max_conn);
 
       void run();
-      void run(lhs::http::handler *app);
+      void run(lhs::http::middleware *app);
       void quit();
 
       int port();

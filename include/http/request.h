@@ -16,6 +16,8 @@ namespace lhs {
         lhs::http::header header();
         lhs::util::any & operator[](const std::string & key);
 
+        std::string to_string() const;
+
       private:
         void parse();
         void parse_init(const std::string & init);
@@ -36,6 +38,8 @@ namespace lhs {
     };
   }
 }
+
+std::ostream& operator<< (std::ostream& out, const lhs::http::request & base);
 
 #endif // __HTTP_REQUEST_H
 

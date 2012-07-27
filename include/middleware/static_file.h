@@ -1,22 +1,22 @@
 #ifndef __HANDLER_STATIC_FILE_H
 #define __HANDLER_STATIC_FILE_H
 
-#include "http/handler.h"
+#include "http/middleware.h"
 #include "util/exception.h"
 
 namespace lhs {
-  namespace handler {
+  namespace middleware {
     class static_file_error {};
-    class static_file : public lhs::http::handler {
+    class static_file : public lhs::http::middleware {
       public:
         static_file(bool allow, std::string root);
-        static_file(bool allow, std::string root, handler *app);
-        static_file(bool allow, handler *app);
+        static_file(bool allow, std::string root, middleware *app);
+        static_file(bool allow, middleware *app);
         static_file(bool allow);
 
         static_file(std::string root);
-        static_file(std::string root, handler *app);
-        static_file(handler *app);
+        static_file(std::string root, middleware *app);
+        static_file(middleware *app);
         static_file();
 
         lhs::http::response call(lhs::http::env env);

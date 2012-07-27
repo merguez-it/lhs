@@ -1,9 +1,9 @@
-#include "handler/error_404.h"
+#include "middleware/error_404.h"
 #include "util/string.h"
 
 #include <iostream>
 
-lhs::http::response lhs::handler::error_404::call(lhs::http::env env) {
+lhs::http::response lhs::middleware::error_404::call(lhs::http::env env) {
   lhs::http::response response = get_response(env);
   lhs::http::request request = get_request(env);
 

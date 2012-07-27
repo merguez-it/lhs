@@ -9,8 +9,8 @@ file(MAKE_DIRECTORY ${LHS_OUTPUT_TEMP_DIR})
 
 add_definitions(-Wall)
 if(DEBUG)
-  set(CMAKE_C_FLAGS "-g -O0")
-  set(CMAKE_CXX_FLAGS "-g -O0")
+  set(CMAKE_C_FLAGS "-g -O0 -DDEBUG")
+  set(CMAKE_CXX_FLAGS "-g -O0 -DDEBUG")
   set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
 

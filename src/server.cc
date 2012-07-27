@@ -22,7 +22,7 @@ struct t_server_data {
   int connection;
   struct lhs::server::peer client;
   lhs::server::server *server;
-  lhs::http::handler *app;
+  lhs::http::middleware *app;
 };
 
 lhs::server::server(const std::string & addr, int port) : addr_(addr), port_(port) {
@@ -68,7 +68,7 @@ void lhs::server::init(int max_conn) {
 void lhs::server::run() {
   run(NULL);
 }
-void lhs::server::run(lhs::http::handler *app) {
+void lhs::server::run(lhs::http::middleware *app) {
   while(true) {
     socklen_t max_size;
 
@@ -111,7 +111,7 @@ void *lhs::server::client_thread(void *context) {
   struct t_server_data *data = (struct t_server_data *)context;
   int c_socket = data->connection;
   struct peer client = data->client;
-  lhs::http::handler *app = data->app;
+  lhs::http::middleware *app = data->app;
 
   std::vector<char> buffer;
 
@@ -133,6 +133,10 @@ void *lhs::server::client_thread(void *context) {
   } 
 
   lhs::http::request request(buffer);
+
+#ifdef DEBUG
+  std::cout << request << std::endl;
+#endif
 
   // TODO -- replace by log
   std::cerr << lhs::util::format("%s:%d [%s] - - %s %s %s",

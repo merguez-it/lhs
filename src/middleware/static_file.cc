@@ -1,4 +1,4 @@
-#include "handler/static_file.h"
+#include "middleware/static_file.h"
 #include "http/mime.h"
 #include "util/string.h"
 
@@ -9,37 +9,37 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-lhs::handler::static_file::static_file(bool allow, std::string root) : handler(), allow_explore_(allow), root_(root) {
+lhs::middleware::static_file::static_file(bool allow, std::string root) : middleware(), allow_explore_(allow), root_(root) {
   set_root();
 }
-lhs::handler::static_file::static_file(bool allow, std::string root, handler *app) : handler(app), allow_explore_(allow), root_(root) {
+lhs::middleware::static_file::static_file(bool allow, std::string root, middleware *app) : middleware(app), allow_explore_(allow), root_(root) {
   set_root();
 }
-lhs::handler::static_file::static_file(bool allow, handler *app) : handler(app), allow_explore_(allow), root_(".") {
+lhs::middleware::static_file::static_file(bool allow, middleware *app) : middleware(app), allow_explore_(allow), root_(".") {
   set_root();
 }
-lhs::handler::static_file::static_file(bool allow) : handler(), allow_explore_(allow), root_(".") {
+lhs::middleware::static_file::static_file(bool allow) : middleware(), allow_explore_(allow), root_(".") {
   set_root();
 }
-lhs::handler::static_file::static_file(std::string root) : handler(), allow_explore_(false), root_(root) {
+lhs::middleware::static_file::static_file(std::string root) : middleware(), allow_explore_(false), root_(root) {
   set_root();
 }
-lhs::handler::static_file::static_file(std::string root, handler *app) : handler(app), allow_explore_(false), root_(root) {
+lhs::middleware::static_file::static_file(std::string root, middleware *app) : middleware(app), allow_explore_(false), root_(root) {
   set_root();
 }
-lhs::handler::static_file::static_file(handler *app) : handler(app), allow_explore_(false), root_(".") {
+lhs::middleware::static_file::static_file(middleware *app) : middleware(app), allow_explore_(false), root_(".") {
   set_root();
 }
-lhs::handler::static_file::static_file() : handler(), allow_explore_(false), root_(".") {
+lhs::middleware::static_file::static_file() : middleware(), allow_explore_(false), root_(".") {
   set_root();
 }
 
-lhs::http::response lhs::handler::static_file::call(lhs::http::env env) {
+lhs::http::response lhs::middleware::static_file::call(lhs::http::env env) {
   lhs::http::response response = get_response(env);
   lhs::http::request request = get_request(env);
 
   if(response.code == 0 || response.code == 404) {
-    std::string filename = get_filename(request.path);
+    std::string filename = get_filename(std::string(request.path, 1));
 
     if(exist(filename)) {
       if(is_directory(filename)) {
@@ -59,18 +59,18 @@ lhs::http::response lhs::handler::static_file::call(lhs::http::env env) {
   return response;
 }
 
-std::string lhs::handler::static_file::get_filename(const std::string & file) {
+std::string lhs::middleware::static_file::get_filename(const std::string & file) {
   return root_ + "/" + file;
 }
 
 
-void lhs::handler::static_file::set_root() {
+void lhs::middleware::static_file::set_root() {
   if(root_.size() > 1 && root_[root_.length()-1] == '/') {
     root_ = std::string(root_.begin(), root_.end()-1);
   }
 }
 
-bool lhs::handler::static_file::exist(const std::string & filename) {
+bool lhs::middleware::static_file::exist(const std::string & filename) {
   bool result = !filename.empty();
 
   if(filename.find("..") != std::string::npos) {
@@ -87,7 +87,7 @@ bool lhs::handler::static_file::exist(const std::string & filename) {
   return result;
 }
 
-bool lhs::handler::static_file::is_directory(const std::string & filename) {
+bool lhs::middleware::static_file::is_directory(const std::string & filename) {
   struct stat status;
   if(0 != stat(filename.c_str(), &status)) {
     return false;
@@ -100,14 +100,14 @@ bool lhs::handler::static_file::is_directory(const std::string & filename) {
   }
 }
 
-std::string lhs::handler::static_file::get_mime(const std::string & file) {
+std::string lhs::middleware::static_file::get_mime(const std::string & file) {
   std::string ext = file.substr(file.find_last_of(".") + 1);
   lhs::http::mime_type mime(ext);
   return mime[0].name;
 }
 
 #define HANDLER_STATIC_FILE_BUFFER_SIZE 1024
-std::string lhs::handler::static_file::get_file_content(const std::string & file) {
+std::string lhs::middleware::static_file::get_file_content(const std::string & file) {
 
   std::ifstream io(file.c_str(), std::ios::in | std::ios::binary);
 
@@ -179,7 +179,7 @@ std::string lhs::handler::static_file::get_file_content(const std::string & file
  "aZoC3gI6iPYaAIBJsiRmHU0AALOeFC3aK2cWAACUXe7+AwO0lc9eTHYTAAAAAElF" \
  "TkSuQmCC"
 
-std::string lhs::handler::static_file::get_directory_content(const std::string & file) {
+std::string lhs::middleware::static_file::get_directory_content(const std::string & file) {
   std::string path(file.begin() + root_.size(), file.end());
   std::string result = lhs::util::format(INDEX_HEADER, path.c_str(), path.c_str());
 

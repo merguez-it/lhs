@@ -75,9 +75,7 @@ void lhs::http::request::parse_init(const std::string & init) {
   version = lhs::http::get_http_version_by_name(content[2]);
 
   parse_params();
-  if(path[0] == '/') {
-    path = std::string(path, 1);
-  } else {
+  if(path[0] != '/') {
     THROW(request_error, "Invalide request path");
   }
 }
@@ -86,7 +84,7 @@ void lhs::http::request::parse_params() {
   std::vector<std::string> content = lhs::util::split(uri, '?');
   if(content.size() < 2) {
     path = uri;
-    query_string = uri;
+    query_string = "";
     return;
   }
 
@@ -102,3 +100,27 @@ void lhs::http::request::parse_params() {
     params[lhs::http::uri::decode(param_name)] = lhs::http::uri::decode(param_value);
   }
 }
+
+std::string lhs::http::request::to_string() const {
+  std::string result("<lhs::http::request:\n");
+
+  result += "<header: \n";
+  result += header_.to_string() + "\n";
+  result += ">\n";
+
+  result += "<method: " + lhs::http::get_http_method_name(method) + " >\n";
+  result += "<uri: " + uri + " >\n";
+  result += "<query_string: " + query_string + " >\n";
+  result += "<path: " + path + " >\n";
+  result += "<version: " + lhs::http::get_http_version_name(version) + " >\n";
+
+  result += ">";
+
+  return result;
+}
+
+std::ostream& operator<< (std::ostream & out, const lhs::http::request & base) {
+  out << base.to_string();
+  return out;
+}
+

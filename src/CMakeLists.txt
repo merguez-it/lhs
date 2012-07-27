@@ -11,15 +11,18 @@ set(LHS_SOURCES
   server.cc
   util/string.cc
   util/datetime.cc
+  util/trex.c
+  util/re.cc
   http/uri.cc
   http/mime.cc
   http/header.cc
   http/request.cc
   http/response.cc
   http/env.cc
-  http/handler.cc
-  handler/static_file.cc
-  handler/error_404.cc
+  http/middleware.cc
+  middleware/static_file.cc
+  middleware/error_404.cc
+  middleware/urlmap.cc
   )
 
 add_library(lhs SHARED ${LHS_SOURCES})
