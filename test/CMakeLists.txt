@@ -3,7 +3,7 @@ project(LHS_TESTS)
 
 include_directories(
   ${LHS_SOURCE_DIR}/include 
-  ${LORM_EXTERN_SOURCE_DIR}/gtest-1.6.0/include
+  ${LHS_EXTERN_SOURCE_DIR}/gtest-1.6.0/include
   )
 
 set(TEST_LIBS
