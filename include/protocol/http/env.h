@@ -1,8 +1,8 @@
 #ifndef __HTTP_ENV_H
 #define __HTTP_ENV_H
 
-#include "http/request.h"
-#include "http/response.h"
+#include "protocol/http/request.h"
+#include "protocol/http/response.h"
 
 namespace lhs {
   namespace http {

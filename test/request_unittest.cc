@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include "http.h"
-#include "http/request.h"
+#include "protocol/http.h"
+#include "protocol/http/request.h"
 #include "gtest/gtest.h"
 
 TEST(Request, testWithParams) {

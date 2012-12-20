@@ -1,7 +1,7 @@
 #ifndef __HANDLER_STATIC_FILE_H
 #define __HANDLER_STATIC_FILE_H
 
-#include "http/middleware.h"
+#include "protocol/http/middleware.h"
 #include "util/exception.h"
 
 namespace lhs {

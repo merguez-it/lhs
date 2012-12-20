@@ -7,5 +7,8 @@
 
 #cmakedefine HAVE_VASPRINTF 1
 #cmakedefine HAVE_VSNPRINTF 1
+#cmakedefine HAVE_PTHREAD_H 1
+#cmakedefine HAVE_WINDOWS_H 1
+#cmakedefine HAVE_GETFILEATTRIBUTES 1
 
 #endif // __CONFIG_H

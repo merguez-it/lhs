@@ -1,9 +1,10 @@
-#include "http/request.h"
-#include "http/uri.h"
+#include "protocol/http/request.h"
+#include "protocol/http/uri.h"
 #include "util/string.h"
 #include <sstream>
 #include <iostream>
 #include <deque>
+#include <string.h>
 
 lhs::http::request::request(const char *data) {
   data_ = std::vector<char>(data, data+strlen(data));

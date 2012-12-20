@@ -1,7 +1,7 @@
 #ifndef __HANDLER_ERROR_404_H
 #define __HANDLER_ERROR_404_H
 
-#include "http/middleware.h"
+#include "protocol/http/middleware.h"
 
 namespace lhs {
   namespace middleware {

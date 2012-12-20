@@ -1,8 +1,8 @@
 #ifndef __HTTP_RESPONSE_H
 #define __HTTP_RESPONSE_H
 
-#include "http.h"
-#include "http/header.h"
+#include "protocol/http.h"
+#include "protocol/http/header.h"
 
 namespace lhs {
   namespace http {

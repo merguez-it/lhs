@@ -10,6 +10,7 @@ set(LHS_SERVER_SOURCES
   lhs-server.cc
   )
 
+set(LHS_SERVER_LINK lhs)
 add_executable(lhs-server ${LHS_SERVER_SOURCES})
-target_link_libraries(lhs-server lhs)
+target_link_libraries(lhs-server ${LHS_SERVER_LINK})
 

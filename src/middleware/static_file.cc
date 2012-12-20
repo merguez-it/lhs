@@ -1,13 +1,25 @@
+#include "config.h"
 #include "middleware/static_file.h"
-#include "http/mime.h"
+#include "protocol/http/mime.h"
 #include "util/string.h"
 
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <unistd.h>
+
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+#include <windows.h>
+#define FILE_SEPARATOR "\\"
+#define FILE_SEPARATOR_C '\\'
+#else
+#define FILE_SEPARATOR "/"
+#define FILE_SEPARATOR_C '/'
+#endif
 
 lhs::middleware::static_file::static_file(bool allow, std::string root) : middleware(), allow_explore_(allow), root_(root) {
   set_root();
@@ -60,12 +72,17 @@ lhs::http::response lhs::middleware::static_file::call(lhs::http::env env) {
 }
 
 std::string lhs::middleware::static_file::get_filename(const std::string & file) {
-  return root_ + "/" + file;
+  std::string out = root_ + FILE_SEPARATOR + file;
+  std::replace(out.begin(), out.end(), '/', FILE_SEPARATOR_C);
+  if(out[out.length()-1] == FILE_SEPARATOR_C) {
+    out = std::string(out.begin(), out.end() - 1);
+  }
+  return out;
 }
 
 
 void lhs::middleware::static_file::set_root() {
-  if(root_.size() > 1 && root_[root_.length()-1] == '/') {
+  if(root_.size() > 1 && root_[root_.length()-1] == FILE_SEPARATOR_C) {
     root_ = std::string(root_.begin(), root_.end()-1);
   }
 }
@@ -93,7 +110,7 @@ bool lhs::middleware::static_file::is_directory(const std::string & filename) {
     return false;
   }
 
-  if (exist(filename) && status.st_mode & S_IFDIR) {
+  if (exist(filename) && (status.st_mode & S_IFMT) == S_IFDIR) {
     return true;
   } else {
     return false;
@@ -106,7 +123,7 @@ std::string lhs::middleware::static_file::get_mime(const std::string & file) {
   return mime[0].name;
 }
 
-#define HANDLER_STATIC_FILE_BUFFER_SIZE 1024
+#define HANDLER_STATIC_FILE_BUFFER_SIZE 1024*8
 std::string lhs::middleware::static_file::get_file_content(const std::string & file) {
 
   std::ifstream io(file.c_str(), std::ios::in | std::ios::binary);
@@ -183,12 +200,13 @@ std::string lhs::middleware::static_file::get_directory_content(const std::strin
   std::string path(file.begin() + root_.size(), file.end());
   std::string result = lhs::util::format(INDEX_HEADER, path.c_str(), path.c_str());
 
-  if(file != root_ + "/") {
-    size_t found = path.find_last_of('/');
+  if(file != root_) {
+    size_t found = path.find_last_of(FILE_SEPARATOR_C);
 
     std::string parent("/");
     if(found > 0) {
       parent = std::string(path.begin(), path.begin() + found);
+      std::replace(parent.begin(), parent.end(), FILE_SEPARATOR_C, '/');
     }
 
     result += lhs::util::format(INDEX_FILE, FOLDER_IMAGE, parent.c_str(), "..", "-", "-");
@@ -204,14 +222,8 @@ std::string lhs::middleware::static_file::get_directory_content(const std::strin
     std::string local_path(dirp->d_name);
     if(0 != local_path.compare(".") && 0 != local_path.compare("..")) {
       std::string url = path + "/" + local_path;
-      if(path[path.length() - 1] == '/') {
-        url = path + local_path;
-      }
+      std::string sys_file = file + FILE_SEPARATOR + local_path;
 
-      std::string sys_file = file + "/" + local_path;
-      if(file[file.length() - 1] == '/') {
-        sys_file = file + local_path;
-      }
       struct stat status;
       stat(sys_file.c_str(), &status);
 
@@ -220,7 +232,7 @@ std::string lhs::middleware::static_file::get_directory_content(const std::strin
 
       std::string type = FOLDER_IMAGE;
       std::string size = "-";
-      if(dirp->d_type != DT_DIR) {
+      if(!is_directory(sys_file)) {
         size = lhs::util::format("%.1fk", ((float)status.st_size)/1024.0); 
         type = FILE_IMAGE;
       }

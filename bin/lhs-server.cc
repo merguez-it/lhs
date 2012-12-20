@@ -1,5 +1,5 @@
 #include "server.h"
-#include "http/middleware.h"
+#include "protocol/http/middleware.h"
 #include "middleware/static_file.h"
 #include "middleware/error_404.h"
 #include "middleware/urlmap.h"
@@ -41,10 +41,20 @@ void terminate(int sig) {
 
 int main() {
   signal(SIGTERM, terminate);
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+  // TODO ?
+#else
   signal(SIGKILL, terminate);
+#endif
   signal(SIGINT, terminate);
 
-  server.init();
+  std::cout << "Go! Habs, GO!" << std::endl;
+  TRY {
+    server.init();
+  } CATCH(RuntimeException, e) {
+    e.print();
+    exit(-1);
+  }
   std::cout << "Serving HTTP on " << server.address() << " port " << server.port() << " ..." << std::endl;
 
   std::map<std::string, lhs::http::middleware *> maps;

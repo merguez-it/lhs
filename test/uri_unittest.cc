@@ -1,5 +1,5 @@
 #include <iostream>
-#include "http/uri.h"
+#include "protocol/http/uri.h"
 #include "gtest/gtest.h"
 
 TEST(URI, test) {

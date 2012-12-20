@@ -1,4 +1,4 @@
-#include "http/mime.h"
+#include "protocol/http/mime.h"
 
 namespace lhs {
   namespace http {

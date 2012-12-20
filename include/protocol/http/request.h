@@ -1,8 +1,8 @@
 #ifndef __HTTP_REQUEST_H
 #define __HTTP_REQUEST_H
 
-#include "http.h"
-#include "http/header.h"
+#include "protocol/http.h"
+#include "protocol/http/header.h"
 #include "util/exception.h"
 
 namespace lhs {

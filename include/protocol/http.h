@@ -109,31 +109,19 @@ namespace lhs {
 #undef __
 
 #define __(name, str, code) (str, name)
-    static std::map<std::string, method> method_str_to_value = 
-      lhs::util::create_map<std::string, method>
-      HTTP_METHODS;
+    static std::map<std::string, method> method_str_to_value = lhs::util::create_map<std::string, method> HTTP_METHODS;
 
-    static std::map<std::string, version> version_str_to_value =
-      lhs::util::create_map<std::string, version>
-      HTTP_VERSIONS;
+    static std::map<std::string, version> version_str_to_value = lhs::util::create_map<std::string, version> HTTP_VERSIONS;
 
-    static std::map<std::string, error> error_str_to_value =
-      lhs::util::create_map<std::string, error>
-      HTTP_ERRORS;
+    static std::map<std::string, error> error_str_to_value = lhs::util::create_map<std::string, error> HTTP_ERRORS;
 #undef __
 
 #define __(name, str, code) (name, str)
-    static std::map<method, std::string> method_value_to_str =
-      lhs::util::create_map<method, std::string>
-      HTTP_METHODS;
+    static std::map<method, std::string> method_value_to_str = lhs::util::create_map<method, std::string> HTTP_METHODS;
 
-    static std::map<version, std::string> version_value_to_str =
-      lhs::util::create_map<version, std::string>
-      HTTP_VERSIONS;
+    static std::map<version, std::string> version_value_to_str = lhs::util::create_map<version, std::string> HTTP_VERSIONS;
 
-    static std::map<error, std::string> error_value_to_str =
-      lhs::util::create_map<error, std::string>
-      HTTP_ERRORS;
+    static std::map<error, std::string> error_value_to_str = lhs::util::create_map<error, std::string> HTTP_ERRORS;
 #undef __
 
 #define GET_BY_NAME_P(m) m get_http_ ## m ## _by_name(const std::string & name)

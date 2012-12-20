@@ -1,7 +1,7 @@
 #ifndef __HANDLER_URLMAP_H
 #define __HANDLER_URLMAP_H
 
-#include "http/middleware.h"
+#include "protocol/http/middleware.h"
 
 namespace lhs {
   namespace middleware {

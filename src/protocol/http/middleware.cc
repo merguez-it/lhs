@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "http/middleware.h"
+#include "protocol/http/middleware.h"
 
 lhs::http::middleware::middleware(middleware *app) : app_(app) {};
 lhs::http::middleware::middleware() : app_(NULL) {};

@@ -10,7 +10,7 @@
 #ifndef HAVE_VSNPRINTF
 #pragma error "vasprintf and vsnprintf not present..."
 #endif // HAVE_VSNPRINTF
-int vasprintf( char **sptr, const char *fmt, va_list argv );
+int vasprintf(char **sptr, const char *fmt, va_list argv);
 #endif // HAVE_VASPRINTF
 
 #define VARARGS_TO_STRING(FORMAT, STRING) \

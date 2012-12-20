@@ -1,18 +1,26 @@
-#include <string>
-#include <netinet/in.h>
-
-#include "http/middleware.h"
+#include "protocol/http/middleware.h"
 #include "util/exception.h"
+
+#include <string>
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <netinet/in.h>
+#endif
+
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
 
 namespace lhs {
   class server_error {};
+  struct peer {
+    int port;
+    char ip[INET6_ADDRSTRLEN];
+  };
   class server {
-    public:
-    struct peer {
-      int port;
-      char ip[INET6_ADDRSTRLEN];
-    };
-
     public:
       server(const std::string & addr, int port);
       server(int port);
@@ -30,7 +38,7 @@ namespace lhs {
 
     private:
       void * client_thread(void *data);
-      struct peer getpeer(int socket);
+      struct peer getpeer(struct sockaddr_in &client);
 
     public:
       static void *client_thread_helper(void *context); 
@@ -38,7 +46,12 @@ namespace lhs {
     private:
       std::string addr_;
       int port_;
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+      WSADATA wsa_;
+      SOCKET socket_;
+#else
       int socket_;
+#endif
       struct sockaddr_in sockaddr_;
   };
 }

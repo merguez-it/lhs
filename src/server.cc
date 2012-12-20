@@ -1,27 +1,38 @@
+#include "config.h"
 #include "server.h"
-#include "http/env.h"
-#include "http/request.h"
-#include "http/response.h"
+#include "protocol/http/env.h"
+#include "protocol/http/request.h"
+#include "protocol/http/response.h"
 #include "util/string.h"
 #include "util/datetime.h"
 
 #include <vector>
 #include <iostream>
 
+#if !defined _WIN32 && !defined __WIN32__ && !defined WIN32
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include <cstdio>
 #include <errno.h>
+#include <string.h>
+#include <unistd.h>
 
 #define DEFAULT_PORT 2009
-#define MAX_CONNECTIONS 1
+#define MAX_CONNECTIONS 5
 #define BUFFER_SIZE 1024
 
 struct t_server_data {
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+  SOCKET connection;
+#else
   int connection;
-  struct lhs::server::peer client;
-  lhs::server::server *server;
+#endif
+  struct lhs::peer client;
+  lhs::server *server;
   lhs::http::middleware *app;
 };
 
@@ -42,26 +53,39 @@ void lhs::server::init() {
   init(MAX_CONNECTIONS);
 }
 void lhs::server::init(int max_conn) {
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+  if(0 != WSAStartup(MAKEWORD(2 ,0), &wsa_)) {
+    THROW(server_error, "%s@%d: %s", __FILE__, __LINE__, strerror(errno));
+  }
+#endif
+
   sockaddr_.sin_family = AF_INET;
   sockaddr_.sin_port = ntohs(port_);
   if(addr_.empty()) {
-    sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
+    //sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
+    sockaddr_.sin_addr.s_addr = INADDR_ANY;
   } else {
-    const char *addr_c = addr_.c_str();
-    inet_aton(addr_c, (in_addr*)&sockaddr_.sin_addr.s_addr);
+    //const char *addr_c = addr_.c_str();
+    //inet_aton(addr_c, (in_addr*)&sockaddr_.sin_addr.s_addr);
+    //inet_pton(sockaddr_.sin_family, addr_c, &sockaddr_.sin_addr);
+    sockaddr_.sin_addr.s_addr = inet_addr(addr_.c_str());
   }
   memset(sockaddr_.sin_zero, 0, sizeof(sockaddr_.sin_zero));
 
-  if(0 > (socket_ = ::socket(AF_INET, SOCK_STREAM, 0))) {
-    THROW(server_error, strerror(errno));
+  if(0 > (socket_ = ::socket(sockaddr_.sin_family, SOCK_STREAM, 0))) {
+    THROW(server_error, "%s@%d: %s", __FILE__, __LINE__, strerror(errno));
   }
 
-  if(0 > ::bind(socket_, (struct sockaddr*)&sockaddr_, sizeof(struct sockaddr))) {
-    THROW(server_error, strerror(errno));
+  int yes = 1; 
+  setsockopt(socket_, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(yes));
+
+  int error;
+  if(0 != (error = ::bind(socket_, (struct sockaddr*)&sockaddr_, sizeof(struct sockaddr)))) {
+    THROW(server_error, "%s@%d - ERROR#%d : %s", __FILE__, __LINE__, error, strerror(errno));
   }
 
-  if(0 > ::listen(socket_, max_conn)) {
-    THROW(server_error, strerror(errno));
+  if(0 != (error = ::listen(socket_, max_conn))) {
+    THROW(server_error, "%s@%d - ERROR#%d : %s", __FILE__, __LINE__, error, strerror(errno));
   }
 }
 
@@ -70,11 +94,15 @@ void lhs::server::run() {
 }
 void lhs::server::run(lhs::http::middleware *app) {
   while(true) {
+    struct sockaddr_in client_ = {0};
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+    int max_size = sizeof(client_);
+#else
     socklen_t max_size;
-
-    int sockfd = ::accept(socket_, (struct sockaddr*)&sockaddr_, &max_size);
+#endif
+    int sockfd = ::accept(socket_, (struct sockaddr*)&client_, &max_size);
     if(0 > sockfd) {
-      THROW(server_error, strerror(errno));
+      THROW(server_error, "%s@%d: %s", __FILE__, __LINE__, strerror(errno));
     }
 
     pthread_t thread;
@@ -82,7 +110,7 @@ void lhs::server::run(lhs::http::middleware *app) {
     data.server = this;
     data.connection = sockfd;
     data.app = app;
-    data.client = getpeer(sockfd);
+    data.client = getpeer(client_);
     /* int tc = */ pthread_create(&thread, NULL, &lhs::server::client_thread_helper, (void*)&data);
   }
 
@@ -92,7 +120,12 @@ void lhs::server::run(lhs::http::middleware *app) {
 
 void lhs::server::quit() {
   if(socket_ > 0) {
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+    closesocket(socket_);
+    WSACleanup();
+#else
     close(socket_);
+#endif
   }
 }
 
@@ -107,20 +140,31 @@ const std::string lhs::server::address() {
   return addr_;
 }
 
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+#define socket_read(S, B, L) recv(S, B, L, 0);
+#else
+#define socket_read(S, B, L) read(S, B, L)
+#endif
 void *lhs::server::client_thread(void *context) {
   struct t_server_data *data = (struct t_server_data *)context;
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+  SOCKET c_socket = data->connection;
+#else
   int c_socket = data->connection;
-  struct peer client = data->client;
+#endif
+  struct lhs::peer client = data->client;
   lhs::http::middleware *app = data->app;
 
   std::vector<char> buffer;
 
   while(true) {
     std::vector<char> _buffer(BUFFER_SIZE);
-    ssize_t read_size = read(c_socket, reinterpret_cast<char*>(&_buffer[0]), BUFFER_SIZE);
+    ssize_t read_size = socket_read(c_socket, reinterpret_cast<char*>(&_buffer[0]), BUFFER_SIZE);
 
     if(0 > read_size) {
-      THROW(server_error, strerror(errno));
+      // TODO -- replace by log
+      std::cerr << "Connexion reset by peer!" << std::endl;
+      return NULL;
     }
     if(0 == read_size) {
       break;
@@ -166,31 +210,19 @@ void *lhs::server::client_thread(void *context) {
   }
 
   if(-1 > response.write(c_socket)) {
-    THROW(server_error, strerror(errno));
+    THROW(server_error, "%s@%d: %s", __FILE__, __LINE__, strerror(errno));
   }
 
   close(c_socket);
   pthread_exit(NULL);
+  return NULL;
 }
 
-struct lhs::server::peer lhs::server::getpeer(int socket) {
-  socklen_t len;
-  struct sockaddr_storage addr;
-  peer p;
-
-  len = sizeof addr;
-  getpeername(socket, (struct sockaddr*)&addr, &len);
-
-  // deal with both IPv4 and IPv6:
-  if (addr.ss_family == AF_INET) {
-    struct sockaddr_in *s = (struct sockaddr_in *)&addr;
-    p.port = ntohs(s->sin_port);
-    inet_ntop(AF_INET, &s->sin_addr, p.ip, sizeof(p.ip));
-  } else { // AF_INET6
-    struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr;
-    p.port = ntohs(s->sin6_port);
-    inet_ntop(AF_INET6, &s->sin6_addr, p.ip, sizeof(p.ip));
-  }
+struct lhs::peer lhs::server::getpeer(struct sockaddr_in &client) {
+  lhs::peer p = {0};
+  char *ip = inet_ntoa(client.sin_addr);
+  memcpy(p.ip, ip, strlen(ip));
+  p.port = ntohs(client.sin_port);
 
   return p;
 }

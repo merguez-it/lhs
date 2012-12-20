@@ -1,12 +1,21 @@
-#include "http/response.h"
+#include "protocol/http/response.h"
 #include "util/datetime.h"
 #include "util/string.h"
 #include "util/types.h"
+#include <unistd.h>
 
 lhs::http::response::response() {};
 
 lhs::http::response::response(lhs::http::version v) : version(v) {}
 
+#if defined _WIN32 || defined __WIN32__ || defined WIN32
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#define socket_write(S, B, L) send(S, B, L, 0);
+#else
+#define socket_write(S, B, L) ::write(S, B, L)
+#endif
 ssize_t lhs::http::response::write(int socket) {
   std::vector<char> data;
 
@@ -24,7 +33,7 @@ ssize_t lhs::http::response::write(int socket) {
   data = std::vector<char>(header.begin(), header.end());
   data.insert(data.end(), body_.begin(), body_.end());
 
-  return ::write(socket, reinterpret_cast<char *>(&data[0]), data.size());
+  return socket_write(socket, reinterpret_cast<char *>(&data[0]), data.size());
 }
 
 lhs::http::header lhs::http::response::header() {
