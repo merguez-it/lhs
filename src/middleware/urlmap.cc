@@ -1,5 +1,5 @@
 #include "middleware/urlmap.h"
-#include "util/re.h"
+#include "regex/re.h"
 
 bool sortmapping(lhs::middleware::mapping a, lhs::middleware::mapping b) {
   return (a.location.size() > b.location.size());
@@ -28,7 +28,7 @@ lhs::http::response lhs::middleware::urlmap::call(lhs::http::env env) {
 lhs::http::middleware * lhs::middleware::urlmap::find_app(lhs::http::request req) {
   std::vector<mapping>::iterator it;
   for(it = mapping_.begin(); it < mapping_.end(); it++) {
-    if(lhs::util::RE((*it).match).find(req.uri)) {
+    if(mgz::regex::RE((*it).match).find(req.uri)) {
       return (*it).app;
     }
   }
@@ -43,12 +43,12 @@ void lhs::middleware::urlmap::remap(std::map<std::string, lhs::http::middleware 
     m.location = (*it).first;
     m.app = (*it).second;
     m.host = ""; 
-    lhs::util::RE re("https?://(.*)(/.*)");
+    mgz::regex::RE re("https?://(.*)(/.*)");
     if(re.find(m.location)) {
       m.host = re[0];
       m.location = re[1];
     } 
-    m.match = "^" + lhs::util::replace_all(lhs::util::RE::quote(m.location), "/", "/+") + "(.*)";
+    m.match = "^" + mgz::util::replace_all(mgz::regex::RE::quote(m.location), "/", "/+") + "(.*)";
 
     mapping_.push_back(m);
     std::sort(mapping_.begin(), mapping_.end(), sortmapping);

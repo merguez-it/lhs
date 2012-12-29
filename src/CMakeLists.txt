@@ -8,14 +8,7 @@ include_directories(
 
 set(LHS_SOURCES
   server.cc
-  util/string.cc
-  util/datetime.cc
-  util/trex.c
-  util/re.cc
-  util/varg.cc
   protocol/http.cc
-  protocol/http/uri.cc
-  protocol/http/mime.cc
   protocol/http/header.cc
   protocol/http/request.cc
   protocol/http/response.cc
@@ -26,12 +19,19 @@ set(LHS_SOURCES
   middleware/urlmap.cc
   )
 
+set(LHS_LINKS
+  ${MGZ_NET_LIBRARIES}
+  ${MGZ_REGEX_LIBRARIES}
+  )
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
+  set(LHS_LINKS
+    ${LHS_LINKS}
+    ws2_32
+    )
+endif()
 add_library(lhs SHARED ${LHS_SOURCES})
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
-  target_link_libraries(lhs ws2_32)
-endif()
+target_link_libraries(lhs ${LHS_LINKS})
+
 add_library(lhs-static STATIC ${LHS_SOURCES})
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
-  target_link_libraries(lhs-static ws2_32)
-endif()
+target_link_libraries(lhs ${LHS_LINKS})
 

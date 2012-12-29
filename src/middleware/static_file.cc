@@ -1,6 +1,6 @@
 #include "config.h"
 #include "middleware/static_file.h"
-#include "protocol/http/mime.h"
+#include "net/mime.h"
 #include "util/string.h"
 
 #include <fstream>
@@ -119,7 +119,7 @@ bool lhs::middleware::static_file::is_directory(const std::string & filename) {
 
 std::string lhs::middleware::static_file::get_mime(const std::string & file) {
   std::string ext = file.substr(file.find_last_of(".") + 1);
-  lhs::http::mime_type mime(ext);
+  mgz::net::mime_type mime(ext);
   return mime[0].name;
 }
 
@@ -198,7 +198,7 @@ std::string lhs::middleware::static_file::get_file_content(const std::string & f
 
 std::string lhs::middleware::static_file::get_directory_content(const std::string & file) {
   std::string path(file.begin() + root_.size(), file.end());
-  std::string result = lhs::util::format(INDEX_HEADER, path.c_str(), path.c_str());
+  std::string result = mgz::util::format(INDEX_HEADER, path.c_str(), path.c_str());
 
   if(file != root_) {
     size_t found = path.find_last_of(FILE_SEPARATOR_C);
@@ -209,7 +209,7 @@ std::string lhs::middleware::static_file::get_directory_content(const std::strin
       std::replace(parent.begin(), parent.end(), FILE_SEPARATOR_C, '/');
     }
 
-    result += lhs::util::format(INDEX_FILE, FOLDER_IMAGE, parent.c_str(), "..", "-", "-");
+    result += mgz::util::format(INDEX_FILE, FOLDER_IMAGE, parent.c_str(), "..", "-", "-");
   }
 
   DIR *dp;
@@ -233,10 +233,10 @@ std::string lhs::middleware::static_file::get_directory_content(const std::strin
       std::string type = FOLDER_IMAGE;
       std::string size = "-";
       if(!is_directory(sys_file)) {
-        size = lhs::util::format("%.1fk", ((float)status.st_size)/1024.0); 
+        size = mgz::util::format("%.1fk", ((float)status.st_size)/1024.0); 
         type = FILE_IMAGE;
       }
-      result += lhs::util::format(INDEX_FILE, type.c_str(), url.c_str(), local_path.c_str(), modif_date, size.c_str());
+      result += mgz::util::format(INDEX_FILE, type.c_str(), url.c_str(), local_path.c_str(), modif_date, size.c_str());
     }
   }
 

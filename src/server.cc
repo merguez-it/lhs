@@ -183,10 +183,10 @@ void *lhs::server::client_thread(void *context) {
 #endif
 
   // TODO -- replace by log
-  std::cerr << lhs::util::format("%s:%d [%s] - - %s %s %s",
+  std::cerr << mgz::util::format("%s:%d [%s] - - %s %s %s",
       client.ip,
       client.port,
-      lhs::util::now_to_rfc1123().c_str(),
+      mgz::util::datetime::now().to_http().c_str(),
       lhs::http::get_http_method_name(request.method).c_str(),
       request.uri.c_str(),
       lhs::http::get_http_version_name(request.version).c_str()) << std::endl;
@@ -204,7 +204,7 @@ void *lhs::server::client_thread(void *context) {
 
   if(internal_404) {
     response.code = lhs::http::Not_Found;
-    response.body(lhs::util::format(DEFAULT_NOT_FOUND, request.uri.c_str()));
+    response.body(mgz::util::format(DEFAULT_NOT_FOUND, request.uri.c_str()));
     response["Content-Type"] = "text/html";
     response["Pragma"] = "no-cache";
   }

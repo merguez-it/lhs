@@ -8,6 +8,7 @@ Lightweight HTTP Server
 
 ### Compiling
 
+* [mgz-util](https://github.com/merguez-it/mgz-utils)
 * [cmake](http://www.cmake.org/)
 * [MinGW](http://www.mingw.org) - on Windows
 
@@ -22,7 +23,7 @@ Lightweight HTTP Server
 
 ## Compiling
 
-Install [cmake](http://www.cmake.org/cmake/help/install.html), [doxygen](http://www.stack.nl/~dimitri/doxygen/install.html) and [graphviz](http://www.graphviz.org/Download.php), then :
+Install [mgz-util](https://github.com/merguez-it/mgz-utils), [cmake](http://www.cmake.org/cmake/help/install.html), [doxygen](http://www.stack.nl/~dimitri/doxygen/install.html) and [graphviz](http://www.graphviz.org/Download.php), then :
 
 ### On MacOSX, or Linux
 

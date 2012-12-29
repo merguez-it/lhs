@@ -15,7 +15,7 @@ namespace lhs {
         ssize_t write(int socket);
 
         lhs::http::header header();
-        lhs::util::any & operator[](const std::string & key);
+        mgz::util::any & operator[](const std::string & key);
 
         void body(std::vector<char> data);
         void body(std::string data);

@@ -20,10 +20,10 @@ ssize_t lhs::http::response::write(int socket) {
   std::vector<char> data;
 
   header_["Server"] = LHS_HOST;
-  header_["Date"] = lhs::util::now_to_rfc1123();
-  header_["Content-Length"] = lhs::util::convert<size_t, std::string>(body_.size());
+  header_["Date"] = mgz::util::datetime::now().to_http();
+  header_["Content-Length"] = mgz::util::convert<size_t, std::string>(body_.size());
 
-  std::string header = lhs::util::format("%s %d %s\r\n", 
+  std::string header = mgz::util::format("%s %d %s\r\n", 
       lhs::http::get_http_version_name(version).c_str(),
       code,
       lhs::http::get_http_error_name(code).c_str());
@@ -40,7 +40,7 @@ lhs::http::header lhs::http::response::header() {
   return header_;
 }
 
-lhs::util::any & lhs::http::response::operator[](const std::string & key) {
+mgz::util::any & lhs::http::response::operator[](const std::string & key) {
   return header_[key];
 }
 

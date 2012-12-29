@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(LHS)
 
 include(FindDoxygen)
+include(FindPkgConfig)
 include(CheckFunctionExists)
 include(CheckIncludeFiles)
 include(CheckCCompilerFlag)
@@ -63,6 +64,11 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${LHS_OUTPUT_TEMP_DIR}/config.h
   )
+
+pkg_search_module(MGZ_NET REQUIRED mgz-net)
+pkg_search_module(MGZ_REGEX REQUIRED mgz-regex)
+include_directories(${MGZ_NET_INCLUDE_DIRS} ${MGZ_REGEX_INCLUDE_DIRS})
+link_directories(${MGZ_NET_LIBRARY_DIRS} ${MGZ_REGEX_LIBRARY_DIRS})
 
 # Documentation
 if(DOXYGEN_FOUND)

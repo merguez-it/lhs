@@ -14,7 +14,7 @@ namespace lhs {
         request(const std::vector<char> & data);
 
         lhs::http::header header();
-        lhs::util::any & operator[](const std::string & key);
+        mgz::util::any & operator[](const std::string & key);
 
         std::string to_string() const;
 

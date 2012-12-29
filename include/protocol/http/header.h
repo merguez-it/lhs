@@ -74,11 +74,11 @@ namespace lhs {
     class header {
       public:
         header() {};
-        lhs::util::any & operator[](const std::string & key);
+        mgz::util::any & operator[](const std::string & key);
         std::string to_string() const;
 
       private:
-        std::map<std::string, lhs::util::any> datas_;
+        std::map<std::string, mgz::util::any> datas_;
         std::vector<char> data_;
     };
   }

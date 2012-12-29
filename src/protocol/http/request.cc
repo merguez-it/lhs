@@ -1,5 +1,5 @@
 #include "protocol/http/request.h"
-#include "protocol/http/uri.h"
+#include "net/uri.h"
 #include "util/string.h"
 #include <sstream>
 #include <iostream>
@@ -19,7 +19,7 @@ lhs::http::header lhs::http::request::header() {
   return header_;
 }
 
-lhs::util::any & lhs::http::request::operator[](const std::string & key) {
+mgz::util::any & lhs::http::request::operator[](const std::string & key) {
   return header_[key];
 }
 
@@ -46,7 +46,7 @@ void lhs::http::request::parse() {
     size_t found = line.find_first_of(":");
     std::string header_name(line, 0, found);
     std::string header_value(line, found + 1);
-    header_[lhs::util::trim(header_name)] = lhs::util::trim(header_value);
+    header_[mgz::util::trim(header_name)] = mgz::util::trim(header_value);
 
     nbchar = nbchar + line.size() + 1;
     result.pop_front();
@@ -66,7 +66,7 @@ void lhs::http::request::parse() {
 }
 
 void lhs::http::request::parse_init(const std::string & init) {
-  std::vector<std::string> content = lhs::util::split(init, ' ');
+  std::vector<std::string> content = mgz::util::split(init, ' ');
   if(content.size() != 3) {
     THROW(request_error, "Bad request");
   }
@@ -82,7 +82,7 @@ void lhs::http::request::parse_init(const std::string & init) {
 }
 
 void lhs::http::request::parse_params() {
-  std::vector<std::string> content = lhs::util::split(uri, '?');
+  std::vector<std::string> content = mgz::util::split(uri, '?');
   if(content.size() < 2) {
     path = uri;
     query_string = "";
@@ -92,13 +92,13 @@ void lhs::http::request::parse_params() {
   path = content[0];
   query_string = content[1];
 
-  std::vector<std::string> _params = lhs::util::split(query_string, '&');
+  std::vector<std::string> _params = mgz::util::split(query_string, '&');
   std::vector<std::string>::iterator it;
   for(it = _params.begin(); it < _params.end(); it++) {
     size_t found = (*it).find_first_of("=");
     std::string param_name(*it, 0, found);
     std::string param_value(*it, found + 1);
-    params[lhs::http::uri::decode(param_name)] = lhs::http::uri::decode(param_value);
+    params[mgz::net::uri::decode(param_name)] = mgz::net::uri::decode(param_value);
   }
 }
 
