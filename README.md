@@ -9,6 +9,7 @@ Lightweight HTTP Server
 ### Compiling
 
 * [cmake](http://www.cmake.org/)
+* [MinGW](http://www.mingw.org) - on Windows
 
 ### Documentation
 
@@ -17,7 +18,7 @@ Lightweight HTTP Server
 
 ### Testing 
 
-* [gtest](http://code.google.com/p/googletest/) 
+* [gtest](http://code.google.com/p/googletest/)
 
 ## Compiling
 
@@ -36,5 +37,12 @@ Install [cmake](http://www.cmake.org/cmake/help/install.html), [doxygen](http://
 
 ### On Windows
 
-Not yet...
+    cd <path to lhs root>
+    mkdir build
+    cd build
+    cmake -G "MinGW Makefiles" ..
+    mingw32-make
+    mingw32-make test
+    mingw32-make doc
+    mingw32-make install
 

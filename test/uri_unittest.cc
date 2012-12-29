@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 #include "protocol/http/uri.h"
 #include "gtest/gtest.h"
 
